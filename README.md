@@ -69,6 +69,15 @@ curl -X POST http://localhost:3000/api/email/normal \
   -d "{\"to\":\"someone@example.com\",\"subject\":\"Drive Link Attachment\",\"text\":\"Please see attached file\",\"attachmentUrl\":\"https://drive.google.com/file/d/FILE_ID/view?usp=sharing\",\"attachmentFilename\":\"resume.pdf\"}"
 ```
 
+### Resume PDF from public folder
+If you send `"resume": true`, the API will attach `public/resume.pdf`.
+
+```bash
+curl -X POST http://localhost:3000/api/email/normal \
+  -H "Content-Type: application/json" \
+  -d "{\"to\":\"someone@example.com\",\"subject\":\"Application\",\"text\":\"Hi, please find my resume attached\",\"resume\":true}"
+```
+
 ## Responses
 - `200`: sent successfully
 - `409`: already sent before for that `to` + `type`

@@ -5,8 +5,8 @@ const {
   markEmailLogSent,
   markEmailLogFailed,
 } = require("../db/emailLogRepo");
-const { downloadUrlToTempFile } = require("./fileDownload");
 const fs = require("fs");
+const path = require("path");
 
 function mapAttachments(attachments) {
   if (!attachments || !Array.isArray(attachments)) return undefined;
@@ -35,6 +35,7 @@ async function sendEmailWithType({
   text,
   html,
   attachments,
+  resume,
   attachmentUrl,
   attachmentFilename,
 }) {
@@ -56,24 +57,23 @@ async function sendEmailWithType({
     subject,
   });
 
-  let downloaded;
-
   try {
-    if (attachmentUrl) {
-      downloaded = await downloadUrlToTempFile({
-        url: attachmentUrl,
-        filenameHint: attachmentFilename,
-      });
-    }
-
     const allAttachments = [];
     const mapped = mapAttachments(attachments);
     if (mapped && mapped.length) allAttachments.push(...mapped);
-    if (downloaded) {
+
+    if (resume) {
+      const resumePath = path.resolve(process.cwd(), "public", "resume.pdf");
+      if (!fs.existsSync(resumePath)) {
+        const err = new Error("resume.pdf not found in public folder");
+        err.statusCode = 400;
+        throw err;
+      }
+
       allAttachments.push({
-        filename: downloaded.filename,
-        path: downloaded.filePath,
-        contentType: downloaded.contentType,
+        filename: "resume.pdf",
+        path: resumePath,
+        contentType: "application/pdf",
       });
     }
 
@@ -108,14 +108,6 @@ async function sendEmailWithType({
       errorMessage: e && e.message ? e.message : String(e),
     });
     throw e;
-  } finally {
-    if (downloaded && downloaded.filePath) {
-      try {
-        fs.unlinkSync(downloaded.filePath);
-      } catch {
-        // ignore
-      }
-    }
   }
 }
 
