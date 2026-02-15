@@ -1,7 +1,9 @@
 const EmailLog = require("./models/EmailLog");
 
 async function hasAnyExisting({ toEmail, type }) {
-  const row = await EmailLog.findOne({ toEmail, type }).select({ _id: 1 }).lean();
+  const row = await EmailLog.findOne({ toEmail, type, status: "sent" })
+    .select({ _id: 1 })
+    .lean();
   return Boolean(row);
 }
 
@@ -49,9 +51,14 @@ async function markEmailLogFailed({ id, errorMessage }) {
   );
 }
 
+async function deleteEmailLog({ id }) {
+  await EmailLog.deleteOne({ _id: id });
+}
+
 module.exports = {
   hasAnyExisting,
   createPendingLog,
   markEmailLogSent,
   markEmailLogFailed,
+  deleteEmailLog,
 };

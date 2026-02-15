@@ -3,7 +3,7 @@ const {
   hasAnyExisting,
   createPendingLog,
   markEmailLogSent,
-  markEmailLogFailed,
+  deleteEmailLog,
 } = require("../db/emailLogRepo");
 const fs = require("fs");
 const path = require("path");
@@ -63,15 +63,15 @@ async function sendEmailWithType({
     if (mapped && mapped.length) allAttachments.push(...mapped);
 
     if (resume) {
-      const resumePath = path.resolve(process.cwd(), "public", "resume.pdf");
+      const resumePath = path.resolve(process.cwd(), "public", "Dhanraj_Pimple_Resume.pdf");
       if (!fs.existsSync(resumePath)) {
-        const err = new Error("resume.pdf not found in public folder");
+        const err = new Error("Dhanraj_Pimple_Resume.pdf not found in public folder");
         err.statusCode = 400;
         throw err;
       }
 
       allAttachments.push({
-        filename: "resume.pdf",
+        filename: "Dhanraj_Pimple_Resume.pdf",
         path: resumePath,
         contentType: "application/pdf",
       });
@@ -103,10 +103,7 @@ async function sendEmailWithType({
   } catch (e) {
     // eslint-disable-next-line no-console
     console.log(`sendEmailWithType failed: type='${type}' to='${to}' error='${e && e.message ? e.message : String(e)}'`);
-    await markEmailLogFailed({
-      id: logId,
-      errorMessage: e && e.message ? e.message : String(e),
-    });
+    await deleteEmailLog({ id: logId });
     throw e;
   }
 }
