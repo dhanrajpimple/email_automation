@@ -36,8 +36,6 @@ async function sendEmailWithType({
   html,
   attachments,
   resume,
-  attachmentUrl,
-  attachmentFilename,
 }) {
   // eslint-disable-next-line no-console
   console.log(`sendEmailWithType start: type='${type}' to='${to}' subject='${subject}' attachments=${Array.isArray(attachments) ? attachments.length : 0}`);
@@ -59,19 +57,26 @@ async function sendEmailWithType({
 
   try {
     const allAttachments = [];
-    const mapped = mapAttachments(attachments);
-    if (mapped && mapped.length) allAttachments.push(...mapped);
+
+    // If resume is requested, send ONLY the resume PDF as attachment.
+    // This prevents extra unexpected attachments (e.g. images/binaries coming from automation tools).
+    if (!resume) {
+      const mapped = mapAttachments(attachments);
+      if (mapped && mapped.length) allAttachments.push(...mapped);
+    }
 
     if (resume) {
-      const resumePath = path.resolve(process.cwd(), "public", "Dhanraj_Pimple_Resume.pdf");
+      const resumeFileName = "Dhanraj_Pimple_Resume.pdf";
+      const resumePath = path.resolve(process.cwd(), "public", resumeFileName);
+
       if (!fs.existsSync(resumePath)) {
-        const err = new Error("Dhanraj_Pimple_Resume.pdf not found in public folder");
+        const err = new Error(`${resumeFileName} not found in public folder`);
         err.statusCode = 400;
         throw err;
       }
 
       allAttachments.push({
-        filename: "Dhanraj_Pimple_Resume.pdf",
+        filename: resumeFileName,
         path: resumePath,
         contentType: "application/pdf",
       });

@@ -60,17 +60,8 @@ curl -X POST http://localhost:3000/api/email/normal \
   -d "{\"to\":\"someone@example.com\",\"subject\":\"5 Attachments Test\",\"text\":\"See attachments\",\"attachments\":[{\"filename\":\"a.txt\",\"contentType\":\"text/plain\",\"contentBase64\":\"QQ==\"},{\"filename\":\"b.txt\",\"contentType\":\"text/plain\",\"contentBase64\":\"Qg==\"},{\"filename\":\"c.txt\",\"contentType\":\"text/plain\",\"contentBase64\":\"Qw==\"},{\"filename\":\"d.txt\",\"contentType\":\"text/plain\",\"contentBase64\":\"RA==\"},{\"filename\":\"e.txt\",\"contentType\":\"text/plain\",\"contentBase64\":\"RQ==\"}]}"
 ```
 
-### Attachment via Google Drive/public URL
-The API can download a file from `attachmentUrl`, attach it to the email, and delete the temp file after sending.
-
-```bash
-curl -X POST http://localhost:3000/api/email/normal \
-  -H "Content-Type: application/json" \
-  -d "{\"to\":\"someone@example.com\",\"subject\":\"Drive Link Attachment\",\"text\":\"Please see attached file\",\"attachmentUrl\":\"https://drive.google.com/file/d/FILE_ID/view?usp=sharing\",\"attachmentFilename\":\"resume.pdf\"}"
-```
-
 ### Resume PDF from public folder
-If you send `"resume": true`, the API will attach `public/resume.pdf`.
+If you send `"resume": true`, the API will attach `public/Dhanraj_Pimple_Resume.pdf`.
 
 ```bash
 curl -X POST http://localhost:3000/api/email/normal \

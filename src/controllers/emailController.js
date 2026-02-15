@@ -34,8 +34,6 @@ const bodySchema = z.object({
   html: z.string().min(1).optional(),
   htmlTemplate: z.string().min(1).optional(),
   resume: z.boolean().optional(),
-  attachmentUrl: z.string().url().optional(),
-  attachmentFilename: z.string().min(1).optional(),
   attachment: z.preprocess(normalizeAttachments, z.array(attachmentSchema).optional()),
   attachments: z.preprocess(normalizeAttachments, z.array(attachmentSchema).optional()),
 });
@@ -72,14 +70,12 @@ function validateBody(req) {
     html,
     attachments: parsed.data.attachments || parsed.data.attachment,
     resume: Boolean(parsed.data.resume),
-    attachmentUrl: parsed.data.attachmentUrl,
-    attachmentFilename: parsed.data.attachmentFilename,
   };
 }
 
 async function sendNormalEmail(req, res, next) {
   try {
-    const { to, subject, text, html, attachments, resume, attachmentUrl, attachmentFilename } = validateBody(req);
+    const { to, subject, text, html, attachments, resume } = validateBody(req);
     const result = await sendEmailWithType({
       type: "normal",
       to,
@@ -88,8 +84,6 @@ async function sendNormalEmail(req, res, next) {
       html,
       attachments,
       resume,
-      attachmentUrl,
-      attachmentFilename,
     });
     res.status(200).json({ ok: true, result });
   } catch (err) {
@@ -99,7 +93,7 @@ async function sendNormalEmail(req, res, next) {
 
 async function sendFreelancingEmail(req, res, next) {
   try {
-    const { to, subject, text, html, attachments, resume, attachmentUrl, attachmentFilename } = validateBody(req);
+    const { to, subject, text, html, attachments, resume } = validateBody(req);
     const result = await sendEmailWithType({
       type: "freelancing",
       to,
@@ -108,8 +102,6 @@ async function sendFreelancingEmail(req, res, next) {
       html,
       attachments,
       resume,
-      attachmentUrl,
-      attachmentFilename,
     });
     res.status(200).json({ ok: true, result });
   } catch (err) {
