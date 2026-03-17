@@ -9,24 +9,24 @@ function requiredEnv(name) {
 }
 
 function createGmailTransporter(user, pass) {
-  // Switching to Port 587 (STARTTLS) which is often more reliable in cloud environments than 465
+  // Trying Port 465 with secure: true
+  // Many cloud providers (like Render) block port 587 but occasionally allow 465 (SSL)
   return nodemailer.createTransport({
     host: "smtp.gmail.com",
-    port: 587,
-    secure: false, // Must be false for port 587; STARTTLS will upgrade it
+    port: 465,
+    secure: true, // Use SSL for port 465
     auth: {
       user: user,
-      pass: pass, // This MUST be a Gmail App Password
+      pass: pass,
     },
-    // Cloud environments (Render/Docker) can have ephemeral networks. 
-    // Disabling pool to ensure a fresh connection for each send while debugging.
+    // Keep internal pooling off for debugging
     pool: false,
-    // Short timeouts are CRITICAL to prevent the "2-minute hang"
-    connectionTimeout: 10000, // 10s
-    greetingTimeout: 10000, 
-    socketTimeout: 20000, // 20s
-    debug: true, // Enable to see actual handshake in logs
-    logger: true, // Log to console
+    // Slightly longer timeouts for cloud cold-starts
+    connectionTimeout: 20000, // 20s
+    greetingTimeout: 20000, 
+    socketTimeout: 30000, 
+    debug: true,
+    logger: true,
   });
 }
 
