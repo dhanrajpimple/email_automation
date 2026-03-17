@@ -1,5 +1,6 @@
 const express = require("express");
 const dotenv = require("dotenv");
+const cors = require("cors");
 
 dotenv.config();
 
@@ -7,6 +8,7 @@ const emailRoutes = require("./routes/emailRoutes");
 
 const app = express();
 
+app.use(cors());
 app.use(express.json({ limit: "15mb" }));
 
 app.use((req, res, next) => {
@@ -22,7 +24,7 @@ app.get("/health", (req, res) => {
   res.json({ ok: true });
 });
 
-app.use("/api/email", emailRoutes);
+app.use("/", emailRoutes);
 
 app.use((err, req, res, next) => {
   const status = err.statusCode || 500;

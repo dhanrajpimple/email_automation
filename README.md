@@ -1,10 +1,11 @@
 # Email Sending Backend
 
 ## Features
-- 2 APIs:
+- 3 APIs:
   - `POST /api/email/normal`
   - `POST /api/email/freelancing`
-- Uses 2 different Gmail accounts (App Passwords)
+  - `POST /api/email/agent`
+- Uses 3 different Gmail accounts (App Passwords)
 - Logs each email in MongoDB collection `emaillogs` with `toEmail` + `type`
 - Prevents sending again if the same `to_email` + `type` already exists in DB
 
@@ -51,6 +52,13 @@ curl -X POST http://localhost:3000/api/email/normal \
 curl -X POST http://localhost:3000/api/email/freelancing \
   -H "Content-Type: application/json" \
   -d "{\"to\":\"someone@example.com\",\"heading\":\"Freelance Test\",\"htmlTemplate\":\"<b>Hello from freelancing</b>\"}"
+```
+
+### Agent email
+```bash
+curl -X POST http://localhost:3000/api/email/agent \
+  -H "Content-Type: application/json" \
+  -d "{\"to\":\"someone@example.com\",\"subject\":\"Agent Test\",\"text\":\"Hello from agent text body\",\"html\":\"<h2>Hello from agent HTML body</h2>\"}"
 ```
 
 ### Multiple attachments (example)

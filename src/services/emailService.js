@@ -5,40 +5,15 @@ const {
   markEmailLogSent,
   deleteEmailLog,
 } = require("../db/emailLogRepo");
-const fs = require("fs");
-const path = require("path");
-
-function mapAttachments(attachments) {
-  if (!attachments || !Array.isArray(attachments)) return undefined;
-
-  return attachments.map((a) => {
-    const att = {
-      filename: a.filename,
-    };
-
-    if (a.contentBase64) {
-      att.content = Buffer.from(a.contentBase64, "base64");
-    }
-
-    if (a.contentType) {
-      att.contentType = a.contentType;
-    }
-
-    return att;
-  });
-}
 
 async function sendEmailWithType({
   type,
   to,
   subject,
   text,
-  html,
-  attachments,
-  resume,
 }) {
   // eslint-disable-next-line no-console
-  console.log(`sendEmailWithType start: type='${type}' to='${to}' subject='${subject}' attachments=${Array.isArray(attachments) ? attachments.length : 0}`);
+  console.log(`sendEmailWithType start: type='${type}' to='${to}'`);
 
   const already = await hasAnyExisting({ toEmail: to, type });
   if (already) {
@@ -56,40 +31,19 @@ async function sendEmailWithType({
   });
 
   try {
-    const allAttachments = [];
+    const { transporter, fromEmail } = getTransportForType(type);
 
-    // If resume is requested, send ONLY the resume PDF as attachment.
-    // This prevents extra unexpected attachments (e.g. images/binaries coming from automation tools).
-    if (!resume) {
-      const mapped = mapAttachments(attachments);
-      if (mapped && mapped.length) allAttachments.push(...mapped);
-    }
-
-    if (resume) {
-      const resumeFileName = "Dhanraj_Pimple_Resume.pdf";
-      const resumePath = path.resolve(process.cwd(), "public", resumeFileName);
-
-      if (!fs.existsSync(resumePath)) {
-        const err = new Error(`${resumeFileName} not found in public folder`);
-        err.statusCode = 400;
-        throw err;
-      }
-
-      allAttachments.push({
-        filename: resumeFileName,
-        path: resumePath,
-        contentType: "application/pdf",
-      });
-    }
-
-    const transporter = getTransportForType(type);
-    const info = await transporter.sendMail({
+    const mailOptions = {
+      from: fromEmail,
       to,
       subject,
       text,
-      html,
-      attachments: allAttachments.length ? allAttachments : undefined,
-    });
+    };
+
+    // eslint-disable-next-line no-console
+    console.log(`sendEmailWithType sending email`);
+
+    const info = await transporter.sendMail(mailOptions);
 
     // eslint-disable-next-line no-console
     console.log(`sendEmailWithType sent: type='${type}' to='${to}' messageId='${info.messageId || ""}'`);

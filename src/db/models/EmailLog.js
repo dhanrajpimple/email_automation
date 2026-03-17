@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const emailLogSchema = new mongoose.Schema(
   {
     toEmail: { type: String, required: true, lowercase: true, trim: true },
-    type: { type: String, required: true, enum: ["normal", "freelancing"] },
+    type: { type: String, required: true, enum: ["normal", "freelancing", "agent"] },
     subject: { type: String },
     status: {
       type: String,
