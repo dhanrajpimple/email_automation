@@ -8,6 +8,13 @@ const bodySchema = z.object({
 });
 
 function validateBody(req) {
+  // eslint-disable-next-line no-console
+  console.log(`Incoming body keys: ${Object.keys(req.body || {}).join(", ")}`);
+  if (req.body.text) {
+    // eslint-disable-next-line no-console
+    console.log(`Text length: ${req.body.text.length} chars, line count: ${req.body.text.split("\n").length}`);
+  }
+
   const parsed = bodySchema.safeParse(req.body);
   if (!parsed.success) {
     const err = new Error("Invalid request body. Expected: to, subject, text");
